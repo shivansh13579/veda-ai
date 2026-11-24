@@ -154,10 +154,70 @@ VIMSHOTTARI_LORDS: Tuple[str, ...] = (
     "Mercury",
 )
 
+# Vimshottari Mahadasha planetary durations in solar years (Total = 120 years)
+VIMSHOTTARI_DURATIONS: Dict[str, float] = {
+    "Ketu": 7.0,
+    "Venus": 20.0,
+    "Sun": 6.0,
+    "Moon": 10.0,
+    "Mars": 7.0,
+    "Rahu": 18.0,
+    "Jupiter": 16.0,
+    "Saturn": 19.0,
+    "Mercury": 17.0,
+}
+
+TOTAL_VIMSHOTTARI_YEARS: float = 120.0
+
+
+class DashaYearConvention(str, enum.Enum):
+    """
+    Standard year-length conventions for converting Dasha years to calendar duration.
+    - SOLAR_365_25: 365.25 days (Julian/Solar year, standard modern default in Jagannatha Hora).
+    - SAVANA_360: 360.0 days (Classical Savana year = 12 months x 30 solar days/tithis).
+    - GREGORIAN_365_2425: 365.2425 days (Mean Gregorian solar calendar year).
+    """
+    SOLAR_365_25 = "365.25"
+    SAVANA_360 = "360.0"
+    GREGORIAN_365_2425 = "365.2425"
+
+
+DEFAULT_DASHA_YEAR_DAYS: float = 365.25
+
 # Exact mathematical spans
 NAKSHATRA_SPAN_DEGREES: float = 40.0 / 3.0  # 13° 20' = 13.333333333333334°
 PADA_SPAN_DEGREES: float = 10.0 / 3.0       # 3° 20' = 3.3333333333333335°
 NAKSHATRA_SPAN_MINUTES: float = 800.0       # 800 arcminutes
 PADA_SPAN_MINUTES: float = 200.0            # 200 arcminutes
+
+# Navamsa (D9) mathematical constants
+NAVAMSA_SPAN_DEGREES: float = 10.0 / 3.0    # 3° 20' = 3.3333333333333335°
+NAVAMSA_SPAN_MINUTES: float = 200.0         # 200 arcminutes
+NAVAMSAS_PER_SIGN: int = 9
+TOTAL_NAVAMSAS: int = 108
+
+
+class ZodiacModality(str, enum.Enum):
+    """Vedic sign quadruplicity / modality."""
+    MOVABLE = "movable"    # Chara (Cardinal)
+    FIXED = "fixed"        # Sthira (Fixed)
+    DUAL = "dual"          # Dvisvabhava (Mutable)
+
+
+SIGN_MODALITIES: Dict[int, ZodiacModality] = {
+    1: ZodiacModality.MOVABLE,   # Aries
+    2: ZodiacModality.FIXED,     # Taurus
+    3: ZodiacModality.DUAL,      # Gemini
+    4: ZodiacModality.MOVABLE,   # Cancer
+    5: ZodiacModality.FIXED,     # Leo
+    6: ZodiacModality.DUAL,      # Virgo
+    7: ZodiacModality.MOVABLE,   # Libra
+    8: ZodiacModality.FIXED,     # Scorpio
+    9: ZodiacModality.DUAL,      # Sagittarius
+    10: ZodiacModality.MOVABLE,  # Capricorn
+    11: ZodiacModality.FIXED,    # Aquarius
+    12: ZodiacModality.DUAL,     # Pisces
+}
+
 
 

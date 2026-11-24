@@ -84,8 +84,11 @@ class PlanetaryPlacementsResponse(BaseModel):
 class LagnaChartResponse(BaseModel):
     """Unified D1 Lagna Chart response uniting Ascendant, 12 Bhavas, and Planetary Placements."""
 
+    chart_type: str = Field(default="D1", description="Divisional chart identifier ('D1')")
+    chart_name: str = Field(default="Rashi", description="Traditional Vedic name ('Rashi')")
     ascendant: AscendantDetail = Field(..., description="Ascendant (Lagna) details")
     houses: List[BhavaDetail] = Field(..., description="12 Whole Sign Bhavas with occupying planets")
     planetary_placements: List[PlanetHousePlacement] = Field(..., description="Planetary positions with house numbers")
     metadata: CalculationMetadata = Field(..., description="Calculation and ephemeris metadata")
+
 

@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,11 +16,21 @@ from app.astrology.schemas.bhava import (
     LagnaChartResponse,
     PlanetaryPlacementsResponse,
 )
+from app.astrology.schemas.dasha import VimshottariDashaResponse
+from app.astrology.schemas.divisional import (
+    D1ChartResponse,
+    D9ChartResponse,
+    DivisionalChartsResponse,
+)
 from app.astrology.schemas.planetary import AstrologyEngineStatusResponse
 from app.astrology.services.ascendant_service import AscendantService
 from app.astrology.services.bhava_service import BhavaService
+from app.astrology.services.divisional_service import DivisionalService
 from app.astrology.services.house_placement_service import HousePlacementService
 from app.astrology.services.lagna_chart_service import LagnaChartService
+from app.astrology.services.navamsa_service import NavamsaService
+from app.astrology.services.vimshottari_dasha_service import VimshottariDashaService
+
 from app.core.config import settings
 from app.db.models.user import User
 from app.db.session import get_db
@@ -159,3 +170,116 @@ async def get_birth_profile_lagna_chart(
         ayanamsha=ayanamsha,
         node_type=node_type,
     )
+
+
+@router.get(
+    "/birth-profiles/{profile_id}/d1",
+    response_model=D1ChartResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Calculate D1 Rashi (Natal) Chart",
+    description="Calculates the structured D1 Rashi Chart containing Ascendant, twelve Whole Sign houses, house lords, and planetary placements.",
+)
+async def get_birth_profile_d1_chart(
+    profile_id: uuid.UUID,
+    ayanamsha: Optional[str] = Query(None, description="Optional ayanamsha override ('lahiri', 'raman', 'kp')"),
+    node_type: Optional[str] = Query(None, description="Optional lunar node convention ('true' or 'mean')"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    profile = await BirthProfileService.get_profile(
+        db=db,
+        profile_id=profile_id,
+        user_id=current_user.id,
+    )
+    return DivisionalService.calculate_d1_for_birth_profile(
+        profile=profile,
+        ayanamsha=ayanamsha,
+        node_type=node_type,
+    )
+
+
+@router.get(
+    "/birth-profiles/{profile_id}/d9",
+    response_model=D9ChartResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Calculate D9 Navamsa Chart",
+    description="Calculates the standard Vedic D9 Navamsa Chart with Navamsa Lagna, 12 D9 Whole Sign houses, and D9 planetary house placements.",
+)
+async def get_birth_profile_d9_chart(
+    profile_id: uuid.UUID,
+    ayanamsha: Optional[str] = Query(None, description="Optional ayanamsha override ('lahiri', 'raman', 'kp')"),
+    node_type: Optional[str] = Query(None, description="Optional lunar node convention ('true' or 'mean')"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    profile = await BirthProfileService.get_profile(
+        db=db,
+        profile_id=profile_id,
+        user_id=current_user.id,
+    )
+    return DivisionalService.calculate_d9_for_birth_profile(
+        profile=profile,
+        ayanamsha=ayanamsha,
+        node_type=node_type,
+    )
+
+
+@router.get(
+    "/birth-profiles/{profile_id}/divisional-charts",
+    response_model=DivisionalChartsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Calculate Combined D1 and D9 Divisional Charts",
+    description="Calculates both the D1 Rashi and D9 Navamsa charts simultaneously from a single ephemeris evaluation without duplicate computation.",
+)
+async def get_birth_profile_divisional_charts(
+    profile_id: uuid.UUID,
+    ayanamsha: Optional[str] = Query(None, description="Optional ayanamsha override ('lahiri', 'raman', 'kp')"),
+    node_type: Optional[str] = Query(None, description="Optional lunar node convention ('true' or 'mean')"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    profile = await BirthProfileService.get_profile(
+        db=db,
+        profile_id=profile_id,
+        user_id=current_user.id,
+    )
+    return DivisionalService.calculate_divisional_for_birth_profile(
+        profile=profile,
+        ayanamsha=ayanamsha,
+        node_type=node_type,
+    )
+
+
+@router.get(
+    "/birth-profiles/{profile_id}/vimshottari-dasha",
+    response_model=VimshottariDashaResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Calculate Vimshottari Dasha Periods & Timeline",
+    description="Calculates birth Mahadasha balance, full 120-year cyclic Dasha timeline, nested Antardashas and Pratyantardashas, and current active period.",
+)
+async def get_birth_profile_vimshottari_dasha(
+    profile_id: uuid.UUID,
+    as_of: Optional[datetime] = Query(None, description="Target datetime for determining active dasha (defaults to current UTC instant)"),
+    level: str = Query("pratyantardasha", description="Dasha timeline hierarchy depth: 'mahadasha', 'antardasha', or 'pratyantardasha'"),
+    include_timeline: bool = Query(True, description="Whether to include the full 120-year timeline in the response"),
+    ayanamsha: Optional[str] = Query(None, description="Optional ayanamsha override ('lahiri', 'raman', 'kp')"),
+    node_type: Optional[str] = Query(None, description="Optional lunar node convention ('true' or 'mean')"),
+    year_length: float = Query(365.25, description="Number of solar days per Dasha year (365.25 for standard solar, 360.0 for Savana)"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    profile = await BirthProfileService.get_profile(
+        db=db,
+        profile_id=profile_id,
+        user_id=current_user.id,
+    )
+    return VimshottariDashaService.calculate_for_birth_profile(
+        profile=profile,
+        as_of=as_of,
+        level=level,
+        include_timeline=include_timeline,
+        ayanamsha=ayanamsha,
+        node_type=node_type,
+        year_length=year_length,
+    )
+
