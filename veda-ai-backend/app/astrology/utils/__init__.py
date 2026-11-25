@@ -18,6 +18,13 @@ from app.astrology.utils.datetime_utils import (
     get_zoneinfo,
     local_to_utc_datetime,
 )
+from app.astrology.utils.dignity_utils import (
+    CombustionResult,
+    DignityResult,
+    calculate_angular_separation,
+    calculate_dignity,
+    check_combustion,
+)
 from app.astrology.utils.house_utils import (
     get_planet_house,
     get_sign_lord,
@@ -58,6 +65,11 @@ __all__ = [
     "get_antardasha_sequence",
     "get_pratyantardasha_sequence",
     "build_vimshottari_timeline",
+    "calculate_angular_separation",
+    "check_combustion",
+    "calculate_dignity",
+    "CombustionResult",
+    "DignityResult",
 ]
 
 

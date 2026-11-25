@@ -20,6 +20,11 @@ from app.astrology.schemas.dasha import (
     PratyantardashaPeriodResponse,
     VimshottariDashaResponse,
 )
+from app.astrology.schemas.dignity import (
+    CombustionDetail,
+    PlanetDignityDetail,
+    PlanetaryDignitiesResponse,
+)
 from app.astrology.schemas.divisional import (
     D1ChartResponse,
     D9AscendantDetail,
@@ -64,6 +69,9 @@ __all__ = [
     "AntardashaPeriodResponse",
     "MahadashaPeriodResponse",
     "VimshottariDashaResponse",
+    "CombustionDetail",
+    "PlanetDignityDetail",
+    "PlanetaryDignitiesResponse",
 ]
 
 

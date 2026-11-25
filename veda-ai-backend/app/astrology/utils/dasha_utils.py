@@ -317,54 +317,7 @@ def build_vimshottari_timeline(
 
         timeline.append(md_dict)
 
-    # Edge case: If as_of is before timeline start or after 120-year cycle, populate closest or fallback
-    if current_md is None and timeline:
-        if as_of_utc < timeline[0]["start_date"]:
-            first_md = timeline[0]
-            current_md = {
-                "planet": first_md["planet"],
-                "level": "mahadasha",
-                "start_date": first_md["start_date"],
-                "end_date": first_md["end_date"],
-                "duration_years": first_md["duration_years"],
-                "duration_days": first_md["duration_days"],
-            }
-        else:
-            last_md = timeline[-1]
-            current_md = {
-                "planet": last_md["planet"],
-                "level": "mahadasha",
-                "start_date": last_md["start_date"],
-                "end_date": last_md["end_date"],
-                "duration_years": last_md["duration_years"],
-                "duration_days": last_md["duration_days"],
-            }
-
-    if current_ad is None and current_md:
-        # Fallback to first antardasha of active mahadasha
-        seq = get_antardasha_sequence(current_md["planet"])
-        first_ad_lord, first_ad_years = seq[0]
-        current_ad = {
-            "planet": first_ad_lord,
-            "level": "antardasha",
-            "start_date": current_md["start_date"],
-            "end_date": current_md["start_date"] + timedelta(days=first_ad_years * days_per_year),
-            "duration_years": round(first_ad_years, 6),
-            "duration_days": round(first_ad_years * days_per_year, 4),
-        }
-
-    if current_pd is None and current_md and current_ad:
-        # Fallback to first pratyantardasha of active antardasha
-        p_seq = get_pratyantardasha_sequence(current_md["planet"], current_ad["planet"])
-        first_pd_lord, first_pd_years = p_seq[0]
-        current_pd = {
-            "planet": first_pd_lord,
-            "level": "pratyantardasha",
-            "start_date": current_ad["start_date"],
-            "end_date": current_ad["start_date"] + timedelta(days=first_pd_years * days_per_year),
-            "duration_years": round(first_pd_years, 6),
-            "duration_days": round(first_pd_years * days_per_year, 4),
-        }
-
+    # Note: If as_of is outside the 120-year timeline (before T0 or after T0 + 120y),
+    # current_md, current_ad, and current_pd remain None, and out_of_range_advisory is returned.
     return timeline, current_md, current_ad, current_pd
 

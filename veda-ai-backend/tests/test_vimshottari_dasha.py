@@ -531,3 +531,50 @@ async def test_invalid_year_length_parameter(async_client: AsyncClient):
         headers=headers,
     )
     assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_out_of_range_dates_advisory_and_null_active_periods(async_client: AsyncClient):
+    """Dates prior to timeline T0 or after T0 + 120y return null active periods with clear advisory."""
+    headers = await create_auth_user(async_client, "out_of_range_dasha_user@veda.ai")
+    profile_data = {
+        "profile_name": "Centenarian Profile",
+        "full_name": "Long Lived Native",
+        "date_of_birth": "1995-10-24",
+        "time_of_birth": "14:30:00",
+        "birth_place": "Varanasi, India",
+        "latitude": 25.3176,
+        "longitude": 82.9739,
+        "timezone": "Asia/Kolkata",
+    }
+    resp = await async_client.post("/api/v1/birth-profiles", json=profile_data, headers=headers)
+    profile_id = resp.json()["id"]
+
+    # 1. Historical date before T0 (e.g. year 1950)
+    r_past = await async_client.get(
+        f"/api/v1/astrology/birth-profiles/{profile_id}/vimshottari-dasha?as_of=1950-01-01T00:00:00Z",
+        headers=headers,
+    )
+    assert r_past.status_code == 200
+    data_past = r_past.json()
+    assert data_past["current_mahadasha"] is None
+    assert data_past["current_antardasha"] is None
+    assert data_past["current_pratyantardasha"] is None
+    assert data_past["out_of_range_advisory"] is not None
+    assert "prior to the mathematical start" in data_past["out_of_range_advisory"]
+    # Verify no period in timeline is marked current
+    assert all(md["is_current"] is False for md in data_past["timeline"])
+
+    # 2. Future date beyond 120-year cycle (e.g. year 2150)
+    r_future = await async_client.get(
+        f"/api/v1/astrology/birth-profiles/{profile_id}/vimshottari-dasha?as_of=2150-01-01T00:00:00Z",
+        headers=headers,
+    )
+    assert r_future.status_code == 200
+    data_future = r_future.json()
+    assert data_future["current_mahadasha"] is None
+    assert data_future["current_antardasha"] is None
+    assert data_future["current_pratyantardasha"] is None
+    assert data_future["out_of_range_advisory"] is not None
+    assert "beyond the 120-year Vimshottari cycle" in data_future["out_of_range_advisory"]
+    assert all(md["is_current"] is False for md in data_future["timeline"])

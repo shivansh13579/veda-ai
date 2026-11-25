@@ -85,9 +85,18 @@ class VimshottariDashaResponse(BaseModel):
     nakshatra_pada: int = Field(..., description="Moon birth Pada (1 to 4)")
     birth_mahadasha: str = Field(..., description="Starting Mahadasha planet name at birth")
     birth_mahadasha_balance: DashaBalanceResponse = Field(..., description="Calculated balance of birth Mahadasha")
-    current_mahadasha: ActiveDashaPeriod = Field(..., description="Current active Mahadasha")
-    current_antardasha: ActiveDashaPeriod = Field(..., description="Current active Antardasha")
-    current_pratyantardasha: ActiveDashaPeriod = Field(..., description="Current active Pratyantardasha")
+    current_mahadasha: Optional[ActiveDashaPeriod] = Field(
+        default=None, description="Current active Mahadasha (null if as_of falls outside 120-year timeline)"
+    )
+    current_antardasha: Optional[ActiveDashaPeriod] = Field(
+        default=None, description="Current active Antardasha (null if as_of falls outside 120-year timeline)"
+    )
+    current_pratyantardasha: Optional[ActiveDashaPeriod] = Field(
+        default=None, description="Current active Pratyantardasha (null if as_of falls outside 120-year timeline)"
+    )
+    out_of_range_advisory: Optional[str] = Field(
+        default=None, description="Advisory message if as_of instant falls outside the 120-year timeline"
+    )
     timeline: List[MahadashaPeriodResponse] = Field(
         default_factory=list, description="Ordered 120-year timeline of Mahadashas"
     )

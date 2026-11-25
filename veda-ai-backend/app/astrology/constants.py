@@ -220,4 +220,134 @@ SIGN_MODALITIES: Dict[int, ZodiacModality] = {
 }
 
 
+class PlanetaryDignity(str, enum.Enum):
+    """Classical Vedic Planetary Dignity classifications."""
+    EXALTED = "exalted"                    # Uccha
+    MOOLATRIKONA = "moolatrikona"          # Moolatrikona
+    OWN_SIGN = "own_sign"                  # Swakshetra
+    FRIENDLY_SIGN = "friendly_sign"        # Mitra Kshetra
+    NEUTRAL_SIGN = "neutral_sign"          # Sama Kshetra
+    ENEMY_SIGN = "enemy_sign"              # Shatru Kshetra
+    DEBILITATED = "debilitated"            # Neecha
+
+
+class ExaltationInfo(NamedTuple):
+    """Deep exaltation (Param Uccha) and debilitation (Param Neecha) reference data."""
+    exaltation_sign: int        # Sign number (1 to 12)
+    param_uccha_degree: float   # Exact deep exaltation degree within sign
+    debilitation_sign: int      # Sign number (1 to 12)
+    param_neecha_degree: float  # Exact deep debilitation degree within sign
+
+
+# Classical Exaltation & Debilitation signs and exact degrees (BPHS Ch. 3)
+EXALTATION_DATA: Dict[str, ExaltationInfo] = {
+    "sun": ExaltationInfo(1, 10.0, 7, 10.0),       # Aries 10° / Libra 10°
+    "moon": ExaltationInfo(2, 3.0, 8, 3.0),        # Taurus 3° / Scorpio 3°
+    "mars": ExaltationInfo(10, 28.0, 4, 28.0),     # Capricorn 28° / Cancer 28°
+    "mercury": ExaltationInfo(6, 15.0, 12, 15.0),  # Virgo 15° / Pisces 15°
+    "jupiter": ExaltationInfo(4, 5.0, 10, 5.0),    # Cancer 5° / Capricorn 5°
+    "venus": ExaltationInfo(12, 27.0, 6, 27.0),    # Pisces 27° / Virgo 27°
+    "saturn": ExaltationInfo(7, 20.0, 1, 20.0),    # Libra 20° / Aries 20°
+    "rahu": ExaltationInfo(2, 20.0, 8, 20.0),      # Taurus 20° / Scorpio 20° (Parashari tradition)
+    "ketu": ExaltationInfo(8, 20.0, 2, 20.0),      # Scorpio 20° / Taurus 20° (Parashari tradition)
+}
+
+
+class MoolatrikonaRange(NamedTuple):
+    """Moolatrikona sign and active degree span."""
+    sign_number: int
+    start_degree: float
+    end_degree: float
+
+
+# Classical Moolatrikona sign and degree spans (BPHS Ch. 3, v. 49-50)
+MOOLATRIKONA_RANGES: Dict[str, MoolatrikonaRange] = {
+    "sun": MoolatrikonaRange(5, 0.0, 20.0),         # Leo 0° - 20°
+    "moon": MoolatrikonaRange(2, 3.0, 30.0),        # Taurus 3° - 30°
+    "mars": MoolatrikonaRange(1, 0.0, 12.0),        # Aries 0° - 12°
+    "mercury": MoolatrikonaRange(6, 15.0, 20.0),    # Virgo 15° - 20°
+    "jupiter": MoolatrikonaRange(9, 0.0, 10.0),     # Sagittarius 0° - 10°
+    "venus": MoolatrikonaRange(7, 0.0, 15.0),       # Libra 0° - 15°
+    "saturn": MoolatrikonaRange(11, 0.0, 20.0),     # Aquarius 0° - 20°
+    "rahu": MoolatrikonaRange(3, 0.0, 30.0),        # Gemini 0° - 30° (Classical BPHS option)
+    "ketu": MoolatrikonaRange(9, 0.0, 30.0),        # Sagittarius 0° - 30° (Classical BPHS option)
+}
+
+
+# Classical Rulership / Own Signs (Swakshetra)
+OWN_SIGNS: Dict[str, Tuple[int, ...]] = {
+    "sun": (5,),            # Leo
+    "moon": (4,),           # Cancer
+    "mars": (1, 8),         # Aries, Scorpio
+    "mercury": (3, 6),      # Gemini, Virgo
+    "jupiter": (9, 12),     # Sagittarius, Pisces
+    "venus": (2, 7),        # Taurus, Libra
+    "saturn": (10, 11),     # Capricorn, Aquarius
+    "rahu": (11,),          # Aquarius (Classical co-ruler with Saturn)
+    "ketu": (8,),           # Scorpio (Classical co-ruler with Mars)
+}
+
+
+# Classical Natural Planetary Relationships (Naisargika Sambandha) from BPHS Ch. 3, v. 51-54
+NATURAL_RELATIONSHIPS: Dict[str, Dict[str, Tuple[str, ...]]] = {
+    "sun": {
+        "friends": ("moon", "mars", "jupiter"),
+        "neutrals": ("mercury",),
+        "enemies": ("venus", "saturn", "rahu", "ketu"),
+    },
+    "moon": {
+        "friends": ("sun", "mercury"),
+        "neutrals": ("mars", "jupiter", "venus", "saturn"),
+        "enemies": ("rahu", "ketu"),
+    },
+    "mars": {
+        "friends": ("sun", "moon", "jupiter"),
+        "neutrals": ("venus", "saturn"),
+        "enemies": ("mercury", "rahu", "ketu"),
+    },
+    "mercury": {
+        "friends": ("sun", "venus"),
+        "neutrals": ("mars", "jupiter", "saturn"),
+        "enemies": ("moon", "rahu", "ketu"),
+    },
+    "jupiter": {
+        "friends": ("sun", "moon", "mars"),
+        "neutrals": ("saturn",),
+        "enemies": ("mercury", "venus", "rahu", "ketu"),
+    },
+    "venus": {
+        "friends": ("mercury", "saturn"),
+        "neutrals": ("mars", "jupiter"),
+        "enemies": ("sun", "moon", "rahu", "ketu"),
+    },
+    "saturn": {
+        "friends": ("mercury", "venus"),
+        "neutrals": ("jupiter",),
+        "enemies": ("sun", "moon", "mars", "rahu", "ketu"),
+    },
+    "rahu": {
+        "friends": ("mercury", "venus", "saturn"),
+        "neutrals": ("jupiter",),
+        "enemies": ("sun", "moon", "mars"),
+    },
+    "ketu": {
+        "friends": ("mars", "venus", "saturn"),
+        "neutrals": ("mercury", "jupiter"),
+        "enemies": ("sun", "moon"),
+    },
+}
+
+
+# Classical Combustion (Asta) thresholds in degrees (Surya Siddhanta & BPHS)
+# Mercury and Venus have distinct direct and retrograde combustion thresholds.
+COMBUSTION_THRESHOLDS: Dict[str, Dict[str, float]] = {
+    "moon": {"direct": 12.0, "retrograde": 12.0},
+    "mars": {"direct": 17.0, "retrograde": 17.0},
+    "mercury": {"direct": 14.0, "retrograde": 12.0},
+    "jupiter": {"direct": 11.0, "retrograde": 11.0},
+    "venus": {"direct": 10.0, "retrograde": 8.0},
+    "saturn": {"direct": 15.0, "retrograde": 15.0},
+}
+
+
 

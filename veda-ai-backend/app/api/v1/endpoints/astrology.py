@@ -17,6 +17,7 @@ from app.astrology.schemas.bhava import (
     PlanetaryPlacementsResponse,
 )
 from app.astrology.schemas.dasha import VimshottariDashaResponse
+from app.astrology.schemas.dignity import PlanetaryDignitiesResponse
 from app.astrology.schemas.divisional import (
     D1ChartResponse,
     D9ChartResponse,
@@ -29,6 +30,7 @@ from app.astrology.services.divisional_service import DivisionalService
 from app.astrology.services.house_placement_service import HousePlacementService
 from app.astrology.services.lagna_chart_service import LagnaChartService
 from app.astrology.services.navamsa_service import NavamsaService
+from app.astrology.services.planetary_dignity_service import PlanetaryDignityService
 from app.astrology.services.vimshottari_dasha_service import VimshottariDashaService
 
 from app.core.config import settings
@@ -282,4 +284,31 @@ async def get_birth_profile_vimshottari_dasha(
         node_type=node_type,
         year_length=year_length,
     )
+
+
+@router.get(
+    "/birth-profiles/{profile_id}/planetary-dignities",
+    response_model=PlanetaryDignitiesResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Calculate Planetary Dignities and Combustion",
+    description="Evaluates classical Vedic planetary dignities (Uccha, Neecha, Moolatrikona, Swakshetra, Sambandhas) and combustion (Asta) for all 9 Navagrahas.",
+)
+async def get_birth_profile_planetary_dignities(
+    profile_id: uuid.UUID,
+    ayanamsha: Optional[str] = Query(None, description="Optional ayanamsha override ('lahiri', 'raman', 'kp')"),
+    node_type: Optional[str] = Query(None, description="Optional lunar node convention ('true' or 'mean')"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    profile = await BirthProfileService.get_profile(
+        db=db,
+        profile_id=profile_id,
+        user_id=current_user.id,
+    )
+    return PlanetaryDignityService.calculate_for_birth_profile(
+        profile=profile,
+        ayanamsha=ayanamsha,
+        node_type=node_type,
+    )
+
 

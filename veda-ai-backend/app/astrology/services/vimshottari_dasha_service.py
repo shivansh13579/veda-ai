@@ -126,9 +126,27 @@ class VimshottariDashaService:
             days_per_year=year_length,
         )
 
-        cur_md = ActiveDashaPeriod(**cur_md_data)
-        cur_ad = ActiveDashaPeriod(**cur_ad_data)
-        cur_pd = ActiveDashaPeriod(**cur_pd_data)
+        cur_md = ActiveDashaPeriod(**cur_md_data) if cur_md_data else None
+        cur_ad = ActiveDashaPeriod(**cur_ad_data) if cur_ad_data else None
+        cur_pd = ActiveDashaPeriod(**cur_pd_data) if cur_pd_data else None
+
+        # Determine out-of-range advisory if as_of falls outside the 120-year timeline
+        advisory: Optional[str] = None
+        if raw_timeline:
+            t0 = raw_timeline[0]["start_date"]
+            t_end = raw_timeline[-1]["end_date"]
+            if target_as_of < t0:
+                advisory = (
+                    f"The requested as_of date ({target_as_of.strftime('%Y-%m-%d %H:%M:%S UTC')}) "
+                    f"is prior to the mathematical start of the birth Mahadasha ({t0.strftime('%Y-%m-%d %H:%M:%S UTC')}). "
+                    "Active Dasha periods are not defined."
+                )
+            elif target_as_of > t_end:
+                advisory = (
+                    f"The requested as_of date ({target_as_of.strftime('%Y-%m-%d %H:%M:%S UTC')}) "
+                    f"is beyond the 120-year Vimshottari cycle ending on ({t_end.strftime('%Y-%m-%d %H:%M:%S UTC')}). "
+                    "Active Dasha periods are not defined."
+                )
 
         # 5. Format timeline if requested
         timeline_response: List[MahadashaPeriodResponse] = []
@@ -191,5 +209,6 @@ class VimshottariDashaService:
             current_mahadasha=cur_md,
             current_antardasha=cur_ad,
             current_pratyantardasha=cur_pd,
+            out_of_range_advisory=advisory,
             timeline=timeline_response,
         )

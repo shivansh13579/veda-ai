@@ -147,7 +147,7 @@ GET /api/v1/astrology/birth-profiles/{profile_id}/vimshottari-dasha
 - `node_type` (`true` | `mean`, optional): Lunar node convention.
 - `year_length` (`float`, default: `365.25`): Days per Dasha year (e.g. `365.25` or `360.0`).
 
-### Representative API Response
+### Representative API Response (Verified Live Output)
 ```json
 {
   "birth_profile_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
@@ -186,32 +186,33 @@ GET /api/v1/astrology/birth-profiles/{profile_id}/vimshottari-dasha
   "current_mahadasha": {
     "planet": "Saturn",
     "level": "mahadasha",
-    "start_date": "2017-12-29T14:30:00Z",
-    "end_date": "2036-12-28T14:30:00Z",
+    "start_date": "2017-12-28T19:29:58.855200Z",
+    "end_date": "2036-12-28T13:29:58.855200Z",
     "duration_years": 19.0,
     "duration_days": 6939.75
   },
   "current_antardasha": {
     "planet": "Venus",
     "level": "antardasha",
-    "start_date": "2025-08-14T02:30:00Z",
-    "end_date": "2028-10-14T14:30:00Z",
+    "start_date": "2024-10-19T13:20:58.855200Z",
+    "end_date": "2027-12-20T04:20:58.855200Z",
     "duration_years": 3.166667,
     "duration_days": 1156.625
   },
   "current_pratyantardasha": {
-    "planet": "Moon",
+    "planet": "Saturn",
     "level": "pratyantardasha",
-    "start_date": "2026-10-18T18:10:00Z",
-    "end_date": "2027-01-22T21:50:00Z",
-    "duration_years": 0.263889,
-    "duration_days": 96.3854
+    "start_date": "2026-10-31T17:22:28.855200Z",
+    "end_date": "2027-05-02T20:32:58.855200Z",
+    "duration_years": 0.501389,
+    "duration_days": 183.1323
   },
+  "out_of_range_advisory": null,
   "timeline": [
     {
       "planet": "Rahu",
-      "start_date": "1983-12-30T14:30:00Z",
-      "end_date": "2001-12-29T14:30:00Z",
+      "start_date": "1983-12-30T15:19:58.855200Z",
+      "end_date": "2001-12-29T15:19:58.855200Z",
       "duration_years": 18.0,
       "duration_days": 6574.5,
       "is_current": false,
